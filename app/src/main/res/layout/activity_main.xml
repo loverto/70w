@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:animateLayoutChanges="true">
+    <android.support.v7.widget.Toolbar android:id="@+id/toolbar" android:background="?attr/colorPrimary" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:title="@string/app_name" app:titleTextColor="@android:color/white"/>
+    <RelativeLayout android:orientation="horizontal" android:padding="10dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <Button android:id="@+id/btn_scan" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/start_scan" android:layout_centerInParent="true"/>
+        <ImageView android:id="@+id/img_loading" android:visibility="invisible" android:layout_width="30dp" android:layout_height="30dp" android:layout_marginRight="10dp" android:src="@mipmap/ic_loading" android:layout_alignParentRight="true" android:layout_centerVertical="true"/>
+    </RelativeLayout>
+    <ListView android:id="@+id/list_device" android:scrollbars="none" android:layout_width="match_parent" android:layout_height="200dp" android:layout_marginTop="10dp" android:divider="@android:color/darker_gray" android:dividerHeight="0.5dp" android:paddingStart="5dp" android:paddingEnd="5dp"/>
+    <TextView android:textSize="30sp" android:textColor="#ff1de9b6" android:gravity="center" android:id="@+id/selected" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"/>
+    <LinearLayout android:gravity="center" android:padding="10dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <Button android:textSize="20sp" android:textColor="@color/colorAccent" android:gravity="center" android:id="@+id/test1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="测试项0"/>
+        <Button android:textSize="20sp" android:textColor="@color/colorAccent" android:gravity="center" android:id="@+id/test2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="测试项1" android:layout_marginStart="10dp"/>
+    </LinearLayout>
+    <LinearLayout android:gravity="center" android:padding="10dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <Button android:textSize="20sp" android:textColor="@color/colorAccent" android:gravity="center" android:id="@+id/test3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="测试项25" android:layout_marginStart="10dp"/>
+        <Button android:textSize="20sp" android:textColor="@color/colorAccent" android:gravity="center" android:id="@+id/test4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="测试项32"/>
+        <Button android:textSize="20sp" android:textColor="@color/colorAccent" android:gravity="center" android:id="@+id/test5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="测试项40" android:layout_marginStart="10dp"/>
+    </LinearLayout>
+</LinearLayout>

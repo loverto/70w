@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         byteBuffer.putInt(MainActivity.this.speedLimit);
                         halfDuplexChannel.writeData(byteBuffer.array(), 0, new ChannelCallback() {
                             @Override
-                            public void channelCallback(int i) {
+                            public void channelCallback(int requestCode) {
                             }
                         });
                     }

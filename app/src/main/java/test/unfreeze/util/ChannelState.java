@@ -1,7 +1,6 @@
 package test.unfreeze.util;
 
-/* renamed from: test.unfreeze.a.g */
-/* compiled from: ChannelState */
+
 public enum ChannelState {
     /*
      空闲状态

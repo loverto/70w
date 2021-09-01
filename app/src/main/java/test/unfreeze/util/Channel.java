@@ -41,7 +41,7 @@ public abstract class Channel implements IChannel {
 
     private Handler channelHandler;
 
-    private final IChannelStateHandler handlerDataPacketChannelStateHandler = new IChannelStateHandler() {
+    private final IChannelStateHandler handlerSyncAckChannelStateHandler = new IChannelStateHandler() {
 
         @Override
         public void stateHandler(Object... objArr) {
@@ -59,7 +59,7 @@ public abstract class Channel implements IChannel {
         }
     };
 
-    private final IChannelStateHandler handlerRepeatedDataPacketChannelStateHandler = new IChannelStateHandler() {
+    private final IChannelStateHandler handlerReadingChannelStateHandler = new IChannelStateHandler() {
 
         @Override
         public void stateHandler(Object... objArr) {
@@ -85,7 +85,7 @@ public abstract class Channel implements IChannel {
         }
     };
 
-    private final IChannelStateHandler handlerCTRAndACKPacketChannelStateHandler = new IChannelStateHandler() {
+    private final IChannelStateHandler handlerIdleChannelStateHandler = new IChannelStateHandler() {
 
         @Override
         public void stateHandler(Object... objArr) {
@@ -97,9 +97,9 @@ public abstract class Channel implements IChannel {
             Channel.this.switchChannelState(ChannelState.READING);
             Channel.this.handlerPacket( ackPacket,new ChannelCallback() {
                 @Override
-                public void channelCallback(int i) {
+                public void channelCallback(int requestCode) {
                     Channel.this.switchLooper( false);
-                    if (i == 0) {
+                    if (requestCode == 0) {
                         Channel.this.startFor6000L();
                     } else {
                         Channel.this.clear();
@@ -110,7 +110,7 @@ public abstract class Channel implements IChannel {
         }
     };
 
-    private final IChannelStateHandler handlerDelayDataPacketChannelStateHandler = new IChannelStateHandler() {
+    private final IChannelStateHandler handlerReadyChannelStateHandler = new IChannelStateHandler() {
         @Override
         public void stateHandler(Object... objArr) {
             Channel.this.switchLooper( false);
@@ -134,7 +134,7 @@ public abstract class Channel implements IChannel {
         }
     };
 
-    private final IChannelStateHandler handlerAckPacketChannelStateHandler = new IChannelStateHandler() {
+    private final IChannelStateHandler handlerWaitStartAckAndSyncChannelStateHandler = new IChannelStateHandler() {
 
         @Override
         public void stateHandler(Object... objArr) {
@@ -167,12 +167,12 @@ public abstract class Channel implements IChannel {
         }
     };
     private final ChannelStateBlock[] channelStateBlocks = {
-            new ChannelStateBlock(ChannelState.READY, ChannelEvent.SEND_CTR, this.handlerDelayDataPacketChannelStateHandler),
-            new ChannelStateBlock(ChannelState.WAIT_START_ACK, ChannelEvent.RECV_ACK, this.handlerAckPacketChannelStateHandler),
-            new ChannelStateBlock(ChannelState.SYNC, ChannelEvent.RECV_ACK, this.handlerAckPacketChannelStateHandler),
-            new ChannelStateBlock(ChannelState.IDLE, ChannelEvent.RECV_CTR, this.handlerCTRAndACKPacketChannelStateHandler),
-            new ChannelStateBlock(ChannelState.READING, ChannelEvent.RECV_DATA, this.handlerRepeatedDataPacketChannelStateHandler),
-            new ChannelStateBlock(ChannelState.SYNC_ACK, ChannelEvent.RECV_DATA, this.handlerDataPacketChannelStateHandler)};
+            new ChannelStateBlock(ChannelState.READY, ChannelEvent.SEND_CTR, this.handlerReadyChannelStateHandler),
+            new ChannelStateBlock(ChannelState.WAIT_START_ACK, ChannelEvent.RECV_ACK, this.handlerWaitStartAckAndSyncChannelStateHandler),
+            new ChannelStateBlock(ChannelState.SYNC, ChannelEvent.RECV_ACK, this.handlerWaitStartAckAndSyncChannelStateHandler),
+            new ChannelStateBlock(ChannelState.IDLE, ChannelEvent.RECV_CTR, this.handlerIdleChannelStateHandler),
+            new ChannelStateBlock(ChannelState.READING, ChannelEvent.RECV_DATA, this.handlerReadingChannelStateHandler),
+            new ChannelStateBlock(ChannelState.SYNC_ACK, ChannelEvent.RECV_DATA, this.handlerSyncAckChannelStateHandler)};
 
     public abstract boolean isCrcVerifyData();
 
@@ -234,13 +234,13 @@ public abstract class Channel implements IChannel {
         }
 
         @Override
-        public void channelCallback(final int i) {
+        public void channelCallback(final int requestCode) {
             if (Channel.this.isExceptionRunnable()) {
                 Channel.this.destroy();
             }
             Channel.this.channelHandler.post(new Runnable() {
                 public void run() {
-                    ChannelCallBackImpl.this.callback.channelCallback(i);
+                    ChannelCallBackImpl.this.callback.channelCallback(requestCode);
                 }
             });
         }
@@ -250,9 +250,9 @@ public abstract class Channel implements IChannel {
         switchLooper(false);
         handlerPacket(new CTRPacket(this.frameCount, packetType), new ChannelCallback() {
             @Override
-            public void channelCallback(int i) {
+            public void channelCallback(int requestCode) {
                 Channel.this.switchLooper(false);
-                if (i != 0) {
+                if (requestCode != 0) {
                     Channel.this.handlerMainHandlerChannelCallback( -1);
                     Channel.this.clear();
                 }
@@ -261,13 +261,13 @@ public abstract class Channel implements IChannel {
         handlerChannelStateBlock(ChannelEvent.SEND_CTR, new Object[0]);
     }
 
-    public void handlerMainHandlerChannelCallback(final int i) {
+    public void handlerMainHandlerChannelCallback(final int requestCode) {
         switchLooper(false);
         if (this.channelCallback != null) {
             final ChannelCallback channelCallback = this.channelCallback;
             this.mainHandler.post(new Runnable() {
                 public void run() {
-                    channelCallback.channelCallback(i);
+                    channelCallback.channelCallback(requestCode);
                 }
             });
         }
@@ -295,10 +295,10 @@ public abstract class Channel implements IChannel {
             if (!ByteUtil.isNull(channelData)) {
                 handlerPacket(new ACKPacket(0), new ChannelCallback() {
                     @Override
-                    public void channelCallback(int i) {
+                    public void channelCallback(int requestCode) {
                         Channel.this.switchLooper(false);
                         Channel.this.clear();
-                        if (i == 0) {
+                        if (requestCode == 0) {
                             Channel.this.handlerChannelData(channelData);
                         }
                     }
@@ -365,9 +365,9 @@ public abstract class Channel implements IChannel {
         this.dataPacketSeq = seq;
         handlerPacket(new ACKPacket(5, seq), new ChannelCallback() {
             @Override
-            public void channelCallback(int i) {
+            public void channelCallback(int requestCode) {
                 Channel.this.switchLooper( false);
-                if (i == 0) {
+                if (requestCode == 0) {
                     Channel.this.startFor6000L();
                 } else {
                     Channel.this.clear();
@@ -405,13 +405,13 @@ public abstract class Channel implements IChannel {
         int seq = frameCount + 1;
         handlerPacket(new DataPacket(seq, this.bytes, frameCount * begin, Math.min(this.bytes.length, begin * seq)), new ChannelCallback() {
             @Override
-            public void channelCallback(int i) {
+            public void channelCallback(int requestCode) {
                 Channel.this.switchLooper( false);
-                if (i != 0) {
-                    Log.w("Channel", String.format("packet %d write failed", Integer.valueOf(i)));
+                if (requestCode != 0) {
+                    Log.w("Channel", String.format("packet %d write failed", Integer.valueOf(requestCode)));
                 }
                 if (flag) {
-                    Channel.this.handlerPacket( (i + 1), flag);
+                    Channel.this.handlerPacket( (requestCode + 1), flag);
                 }
             }
         }, true);

@@ -2,5 +2,5 @@ package test.unfreeze.util;
 
 
 public interface ChannelCallback {
-    void channelCallback(int i);
+    void channelCallback(int requestCode);
 }

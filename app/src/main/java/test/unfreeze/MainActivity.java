@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onScanStarted(boolean z) {
-                MainActivity.this.deviceAdapter.mo4169a();
+                MainActivity.this.deviceAdapter.removeObtain();
                 MainActivity.this.deviceAdapter.notifyDataSetChanged();
                 MainActivity.this.imgLoading.startAnimation(MainActivity.this.rotateAnimation);
                 MainActivity.this.imgLoading.setVisibility(View.VISIBLE);

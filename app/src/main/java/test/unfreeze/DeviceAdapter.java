@@ -46,7 +46,7 @@ public class DeviceAdapter extends BaseAdapter {
         }
     }
 
-    public void mo4169a() {
+    public void removeObtain() {
         for (int i = 0; i < this.bleDevices.size(); i++) {
             if (!BleManager.getInstance().isConnected(this.bleDevices.get(i))) {
                 this.bleDevices.remove(i);
